@@ -232,6 +232,15 @@ def build(out: Path, base: str = "/docs/", docs: Path = DOCS) -> list[Page]:
         css.write("\n" + _highlight_css())
     shutil.copy(FONT, out / "_assets" / "InterVariable.woff2")
     (out / "_assets" / "search.json").write_text(json.dumps(_search_index(pages, base), separators=(",", ":")))
+    # A "not found" page in the same frame (static hosts such as GitHub Pages serve 404.html).
+    home = (out / "index.html").read_text()
+    start, end = home.index('<article class="doc">'), home.index("</article>") + len("</article>")
+    missing = (home[:start] + f'<article class="doc"><h1>Page not found</h1><p>There\'s no page at this address. '
+               f'Try the <a href="{base}">docs home</a>, or press <kbd>/</kbd> to search.</p></article>' + home[end:])
+    missing = re.sub(r'<nav class="pager".*?</nav>', "", missing, flags=re.S)
+    missing = re.sub(r'<nav class="toc".*?</nav>', "", missing, flags=re.S)
+    missing = missing.replace(' aria-current="page"', "").replace("<title>Glitched docs</title>", "<title>Page not found · Glitched docs</title>")
+    (out / "404.html").write_text(missing)
     return pages
 
 
