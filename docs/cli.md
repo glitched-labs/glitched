@@ -12,7 +12,7 @@ for any command. The [command reference](cli-reference.md) lists every one.
 ## Install and first run
 
 ```bash
-uv tool install /path/to/glitched        # or: pipx install /path/to/glitched
+uv tool install "git+https://github.com/KaylaGel/glitched"   # or: pipx install "git+https://..."
 glitched setup                           # create the database, load the threat intel (~1 min)
 glitched doctor                          # check everything; prints a fix for anything broken
 glitched acknowledge                     # accept the authorized-use notice (once, before scanning)
@@ -80,8 +80,7 @@ registered device (it sends nothing). The guardrails:
   handshakes, and send one unauthenticated `GET /`. Anything active is listed for you to
   do yourself and record with `glitched approve`; Glitched never runs it.
 
-The README's [Safety section](../README.md#safety-what-a-scan-sends-and-the-guardrails)
-lists every packet a scan sends.
+[Safety](safety.md) lists every packet a scan sends.
 
 ## Scan on a schedule
 

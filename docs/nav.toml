@@ -13,12 +13,24 @@ top = [
 title = "Overview"
 pages = [
   { file = "index.md", title = "What is Glitched?" },
+  { file = "safety.md", title = "Safety and guardrails" },
 ]
 
 [[section]]
 title = "Getting started"
 pages = [
+  { file = "install.md", title = "Install" },
+  { file = "sample-report.md", title = "Try it without a robot" },
   { file = "cli.md", title = "The command line" },
+]
+
+[[section]]
+title = "Guides"
+pages = [
+  { file = "describe-a-robot.md", title = "Describe a robot" },
+  { file = "ui.md", title = "The robot scan UI" },
+  { file = "runner.md", title = "The on-site runner" },
+  { file = "threat-intel.md", title = "The threat-intel data system" },
 ]
 
 [[section]]
