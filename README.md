@@ -1,11 +1,11 @@
 <h3 align="center">
-  <a href="https://github.com/KaylaGel/glitched">
+  <a href="https://github.com/glitched-labs/glitched">
     <img width="1000" alt="Glitched: security testing for robots" src="docs/assets/banner.svg" />
   </a>
 </h3>
 
 <h3 align="center">
-  <a href="https://github.com/KaylaGel/glitched/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/KaylaGel/glitched/actions/workflows/ci.yml/badge.svg"></a>
+  <a href="https://github.com/glitched-labs/glitched/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/glitched-labs/glitched/actions/workflows/ci.yml/badge.svg"></a>
   <a href="LICENSE"><img alt="Apache-2.0" src="https://img.shields.io/badge/license-Apache--2.0-blue.svg"></a>
   <a href="pyproject.toml"><img alt="Python 3.11+" src="https://img.shields.io/badge/python-3.11%2B-blue.svg"></a>
 </h3>
@@ -21,7 +21,7 @@ software - and it lists what applies, each with *why*. Then it verifies on a lab
 connect-only probes, and keeps every finding from found to fixed. It runs on your machine, against robots you
 own or are authorized to test.
 
-**Quickstart:** `uv tool install "git+https://github.com/KaylaGel/glitched" && glitched setup` - see what
+**Quickstart:** `uv tool install "git+https://github.com/glitched-labs/glitched" && glitched setup` - see what
 affects your robot in about five minutes.
 
 * [Read what Glitched is and who it's for](docs/index.md)
@@ -73,7 +73,7 @@ versions. Some things to know:
   their SBOM.
 * **NVD loads** take about a minute without a free [NVD API key](https://nvd.nist.gov/developers/request-an-api-key).
 
-Report bugs and ideas as [issues](https://github.com/KaylaGel/glitched/issues), and security problems
+Report bugs and ideas as [issues](https://github.com/glitched-labs/glitched/issues), and security problems
 privately, as [SECURITY.md](SECURITY.md) describes.
 
 ## What is Glitched for?

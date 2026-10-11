@@ -12,7 +12,7 @@ for any command. The [command reference](cli-reference.md) lists every one.
 ## Install and first run
 
 ```bash
-uv tool install "git+https://github.com/KaylaGel/glitched"   # or: pipx install "git+https://..."
+uv tool install "git+https://github.com/glitched-labs/glitched"   # or: pipx install "git+https://..."
 glitched setup                           # create the database, load the threat intel (~1 min)
 glitched doctor                          # check everything; prints a fix for anything broken
 glitched acknowledge                     # accept the authorized-use notice (once, before scanning)

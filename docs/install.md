@@ -4,8 +4,8 @@ Needs Python 3.11+, a running PostgreSQL, and [uv](https://docs.astral.sh/uv/)
 (the data pipelines run dbt through it).
 
 ```bash
-uv tool install "git+https://github.com/KaylaGel/glitched"   # or: pipx install "git+https://..."
-uv tool install "glitched[papers] @ git+https://github.com/KaylaGel/glitched"   # + paper classification
+uv tool install "git+https://github.com/glitched-labs/glitched"   # or: pipx install "git+https://..."
+uv tool install "glitched[papers] @ git+https://github.com/glitched-labs/glitched"   # + paper classification
 glitched setup                               # create the database, load all threat intel (~1 min)
 glitched doctor                              # check everything; prints a fix for any problem
 ```

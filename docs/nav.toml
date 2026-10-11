@@ -2,11 +2,11 @@
 # pages (Markdown files in this folder). A page's title is its first heading unless
 # `title` is given. Pages that aren't listed here aren't published.
 
-repo = "https://github.com/KaylaGel/glitched/blob/main"   # where "View source" links go
+repo = "https://github.com/glitched-labs/glitched/blob/main"   # where "View source" links go
 top = [
   { title = "Command line", url = "cli/" },
   { title = "Reference", url = "cli-reference/" },
-  { title = "GitHub", url = "https://github.com/KaylaGel/glitched" },
+  { title = "GitHub", url = "https://github.com/glitched-labs/glitched" },
 ]
 
 [[section]]

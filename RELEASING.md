@@ -32,12 +32,12 @@ Don't add `--include research` or `--include papers` to a snapshot you publish.
 ## 3. What people run
 
 ```bash
-uv tool install "git+https://github.com/KaylaGel/glitched@v0.2.0"
+uv tool install "git+https://github.com/glitched-labs/glitched@v0.2.0"
 glitched setup --snapshot glitched-intel-v0.2.0.zip   # or plain `glitched setup`
 glitched doctor
 ```
 
-Upgrading: `uv tool install --reinstall "git+https://github.com/KaylaGel/glitched@v0.3.0"`.
+Upgrading: `uv tool install --reinstall "git+https://github.com/glitched-labs/glitched@v0.3.0"`.
 Devices, scans, profiles and config are kept: the app's tables are only ever extended in
 place, and the threat-intel tables are merged, never dropped.
 

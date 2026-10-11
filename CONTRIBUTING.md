@@ -6,7 +6,7 @@ the bar is: **safe by default, explained in plain words, and tested.**
 ## Set up
 
 ```bash
-git clone https://github.com/KaylaGel/glitched && cd glitched
+git clone https://github.com/glitched-labs/glitched && cd glitched
 uv venv && uv pip install -e ".[papers,charts,docs]"
 uvx ruff check src tests
 python -m unittest discover -s tests -t .

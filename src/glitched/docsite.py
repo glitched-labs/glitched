@@ -28,7 +28,7 @@ ROOT = Path(__file__).resolve().parents[2]
 DOCS = ROOT / "docs"
 ASSETS = Path(__file__).resolve().parent / "docsite_assets"
 FONT = ASSETS / "InterVariable.woff2"
-REPO = "https://github.com/KaylaGel/glitched/blob/main"  # unless nav.toml says otherwise (repo = "...")
+REPO = "https://github.com/glitched-labs/glitched/blob/main"  # unless nav.toml says otherwise (repo = "...")
 
 
 @dataclass

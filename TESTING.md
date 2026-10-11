@@ -46,7 +46,7 @@ the README.
 ## 2. Install Glitched
 
 ```bash
-uv tool install "git+https://github.com/KaylaGel/glitched"     # or a release: ...glitched@v0.2.0
+uv tool install "git+https://github.com/glitched-labs/glitched"     # or a release: ...glitched@v0.2.0
 glitched --version
 ```
 
