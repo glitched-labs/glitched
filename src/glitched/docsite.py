@@ -141,7 +141,8 @@ def _top_links(links: list[dict], base: str) -> str:
     return "".join(out)
 
 
-def _page_html(page: Page, pages: list[Page], base: str, repo: str = REPO, top: list[dict] | None = None) -> str:
+def _page_html(page: Page, pages: list[Page], base: str, repo: str = REPO, top: list[dict] | None = None,
+               footer: list[dict] | None = None, footer_note: str = "") -> str:
     i = pages.index(page)
     prev_page, next_page = (pages[i - 1] if i else None), (pages[i + 1] if i + 1 < len(pages) else None)
     pager = "".join([
@@ -150,6 +151,7 @@ def _page_html(page: Page, pages: list[Page], base: str, repo: str = REPO, top: 
     ])
     title = "Glitched docs" if not page.slug else f"{page.heading} · Glitched docs"
     top = _top_links(top or [], base)
+    footer = _top_links(footer or [], base)  # the same kind of links, on the right of the footer
     return f"""<!doctype html>
 <html lang="en">
 <head>
@@ -175,7 +177,10 @@ def _page_html(page: Page, pages: list[Page], base: str, repo: str = REPO, top: 
   <main class="content">
     <article class="doc">{page.html}</article>
     <nav class="pager" aria-label="Previous and next">{pager}</nav>
-    <p class="source"><a href="{repo}/docs/{page.file}">View this page's source on GitHub</a></p>
+    <footer class="site-footer">
+      <span class="footer-note">{html.escape(footer_note)}</span>
+      <nav class="footer-links" aria-label="Links">{footer}<a href="{repo}/docs/{page.file}">Edit this page</a></nav>
+    </footer>
   </main>
   <aside class="toc-column">{_toc_html(page)}</aside>
 </div>
@@ -225,7 +230,8 @@ def build(out: Path, base: str = "/docs/", docs: Path = DOCS) -> list[Page]:
     for page in pages:
         target = out / page.slug / "index.html" if page.slug else out / "index.html"
         target.parent.mkdir(parents=True, exist_ok=True)
-        target.write_text(_page_html(page, pages, base, repo_url(docs), nav.get("top", [])))
+        target.write_text(_page_html(page, pages, base, repo_url(docs), nav.get("top", []), nav.get("footer", []),
+                                     nav.get("footer_note", "")))
     for name in ("docs.css", "docs.js"):
         shutil.copy(ASSETS / name, out / "_assets" / name)
     with (out / "_assets" / "docs.css").open("a") as css:

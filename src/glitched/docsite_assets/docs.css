@@ -133,8 +133,11 @@ kbd { font: 500 0.72rem/1 var(--sans); padding: 0.2rem 0.4rem; border: 1px solid
 .pager a span { font-size: 0.78rem; color: var(--muted); font-weight: 400; }
 .pager a:hover { border-color: color-mix(in srgb, var(--heading) 30%, var(--line)); }
 .pager-next { margin-left: auto; text-align: right; }
-.source { max-width: 47rem; margin: 1.5rem 0 0; font-size: 0.82rem; }
-.source a { color: var(--muted); }
+.site-footer { display: flex; justify-content: space-between; align-items: baseline; gap: 0.6rem 1.5rem; flex-wrap: wrap;
+  max-width: 47rem; margin-top: 2.5rem; padding-top: 1.2rem; border-top: 1px solid var(--line); font-size: 0.82rem; color: var(--muted); }
+.footer-links { display: flex; gap: 0.4rem 1rem; flex-wrap: wrap; margin-left: auto; justify-content: flex-end; }
+.footer-links a { color: var(--muted); text-decoration: none; }
+.footer-links a:hover { color: var(--heading); text-decoration: underline; text-underline-offset: 3px; }
 
 /* -- search ----------------------------------------------------------------------------- */
 dialog.search { padding: 0; border: 0; background: transparent; width: min(40rem, calc(100vw - 2rem)); margin: 10vh auto auto; color: var(--fg); }
@@ -172,6 +175,8 @@ dialog.search::backdrop { background: rgb(10 10 14 / 0.35); backdrop-filter: blu
   .doc h1 { font-size: 1.8rem; }
   .pager { flex-direction: column; }
   .pager-next { margin-left: 0; text-align: left; }
+  .site-footer { flex-direction: column; align-items: flex-start; }
+  .footer-links { margin-left: 0; justify-content: flex-start; }
 }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; scroll-behavior: auto !important; } }
 

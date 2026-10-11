@@ -8,6 +8,13 @@ top = [
   { title = "Reference", url = "cli-reference/" },
   { title = "GitHub", url = "https://github.com/glitched-labs/glitched" },
 ]
+footer_note = "© 2026 Glitched Labs · Apache-2.0"
+footer = [
+  { title = "glitchedlabs.com", url = "https://glitchedlabs.com/" },
+  { title = "GitHub", url = "https://github.com/glitched-labs/glitched" },
+  { title = "Report an issue", url = "https://github.com/glitched-labs/glitched/issues" },
+  { title = "Security", url = "https://github.com/glitched-labs/glitched/security/policy" },
+]
 
 [[section]]
 title = "Overview"
