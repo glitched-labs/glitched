@@ -1,0 +1,12 @@
+# Only the package, its metadata and docs go into the image.
+*
+!pyproject.toml
+!README.md
+!LICENSE
+!NOTICE.md
+!docs/
+!src/
+src/**/__pycache__
+src/glitched/pipelines/transform/target
+src/glitched/pipelines/transform/logs
+src/glitched/pipelines/transform/.user.yml

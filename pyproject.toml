@@ -1,0 +1,75 @@
+[project]
+name = "glitched"
+dynamic = ["version"]
+description = "Security assessment for robots and IoT devices you own or are authorized to test"
+readme = "README.md"
+license = "Apache-2.0"
+license-files = ["LICENSE", "NOTICE.md", "src/glitched/docsite_assets/Inter-LICENSE.txt"]
+requires-python = ">=3.11"
+keywords = ["robotics", "security", "ros", "iot", "vulnerability", "sbom", "emb3d", "mitre-atlas"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Information Technology",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Topic :: Security",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+dependencies = [
+    "psycopg2-binary>=2.9",
+    "pydantic>=2.7",
+    "rich>=13",
+    "questionary>=2.0",
+    "pyyaml>=6.0",
+    "python-dotenv>=1.0",
+]
+
+[project.optional-dependencies]
+# Classify research papers with Claude (data/papers pipeline).
+papers = ["anthropic>=1.11"]
+# EMB3D charts (glitched.charts).
+charts = ["matplotlib>=3.8"]
+# The docs site (python -m glitched.docsite build | serve).
+docs = ["markdown>=3.6"]
+
+[project.urls]
+Documentation = "https://github.com/KaylaGel/glitched/tree/main/docs"
+Source = "https://github.com/KaylaGel/glitched"
+Issues = "https://github.com/KaylaGel/glitched/issues"
+
+[project.scripts]
+glitched = "glitched.cli:main"
+glitched-runner = "glitched.runner.main:main"
+
+[dependency-groups]
+dev = ["anthropic>=1.11", "matplotlib>=3.8", "markdown>=3.6"]
+
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[tool.hatch.version]
+path = "src/glitched/__init__.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/glitched"]
+# dbt build output must never end up in a release
+exclude = ["src/glitched/pipelines/transform/target", "src/glitched/pipelines/transform/logs",
+           "src/glitched/pipelines/transform/.user.yml"]
+
+[tool.hatch.build.targets.sdist]
+include = ["src/glitched", "tests", "README.md", "LICENSE", "NOTICE.md", ".env.example"]
+exclude = ["src/glitched/pipelines/transform/target", "src/glitched/pipelines/transform/logs",
+           "src/glitched/pipelines/transform/.user.yml"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+extend-exclude = ["prototypes"]
+
+[tool.ruff.lint]
+# Defaults (syntax errors, undefined names, unused imports/variables) plus
+# flake8-bugbear's likely-bug checks. Style is left alone.
+select = ["E4", "E7", "E9", "F", "B"]

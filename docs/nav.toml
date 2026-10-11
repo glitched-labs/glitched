@@ -1,0 +1,34 @@
+# The docs site's navigation (python -m glitched.docsite): sections in order, each a list of
+# pages (Markdown files in this folder). A page's title is its first heading unless
+# `title` is given. Pages that aren't listed here aren't published.
+
+repo = "https://github.com/KaylaGel/glitched/blob/main"   # where "View source" links go
+top = [
+  { title = "Command line", url = "cli/" },
+  { title = "Reference", url = "cli-reference/" },
+  { title = "GitHub", url = "https://github.com/KaylaGel/glitched" },
+]
+
+[[section]]
+title = "Overview"
+pages = [
+  { file = "index.md", title = "What is Glitched?" },
+]
+
+[[section]]
+title = "Getting started"
+pages = [
+  { file = "cli.md", title = "The command line" },
+]
+
+[[section]]
+title = "Reference"
+pages = [
+  { file = "cli-reference.md", title = "CLI reference" },
+]
+
+[[section]]
+title = "Design decisions"
+pages = [
+  { file = "decisions/0001-robot-scan-ui-runs-locally.md", title = "The scan UI runs locally" },
+]

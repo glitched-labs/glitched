@@ -1,0 +1,40 @@
+.venv
+.env
+dotenv
+*.env
+!.env.example
+__pycache__/
+
+# dbt build output
+src/glitched/pipelines/transform/target/
+src/glitched/pipelines/transform/logs/
+*.pyc
+
+# Local tool settings
+.claude/settings.local.json
+
+# Local copy of MITRE's atlas-data repo (the pipeline downloads ATLAS itself)
+/data/atlas-data/
+
+# Generated output
+glitch_agent/charts/
+glitch_agent/robotics_cves.png
+glitch_agent/evidence/
+glitch.yaml
+
+# Private research and planning notes (kept locally, not shared)
+/research/
+planning.md
+security_testing_for_robotics.md
+breach_history.md*
+*.ipynb
+/data/sources/
+src/glitched/pipelines/transform/.user.yml
+dist/
+
+
+
+## SKILLS 
+.codex/
+# The built docs site (python -m glitched.docsite build)
+site/

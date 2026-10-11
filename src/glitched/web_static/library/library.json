@@ -1,0 +1,239 @@
+{
+ "templates": [
+  {
+   "id": "wheeled",
+   "name": "Wheeled robot",
+   "hint": "Delivery, inspection, AMRs",
+   "file": "renders/wheeled.png",
+   "width": 960,
+   "height": 960,
+   "anchors": {
+    "network": [
+     0.3514,
+     0.1956
+    ],
+    "cloud_link": [
+     0.5405,
+     0.1171
+    ],
+    "main_controller": [
+     0.5171,
+     0.4652
+    ],
+    "debug_port": [
+     0.6613,
+     0.5222
+    ],
+    "peripherals": [
+     0.6777,
+     0.6943
+    ]
+   },
+   "labels": {
+    "network": "Wi-Fi antenna",
+    "cloud_link": "Sensor mast · LTE",
+    "main_controller": "Controller · display",
+    "debug_port": "Service port",
+    "peripherals": "Front I/O"
+   },
+   "platforms": [
+    "ros",
+    "lerobot"
+   ]
+  },
+  {
+   "id": "arm",
+   "name": "Robot arm",
+   "hint": "Cobots and industrial arms",
+   "file": "renders/arm.png",
+   "width": 960,
+   "height": 960,
+   "anchors": {
+    "network": [
+     0.4955,
+     0.6354
+    ],
+    "cloud_link": [
+     0.5559,
+     0.3492
+    ],
+    "main_controller": [
+     0.5659,
+     0.714
+    ],
+    "debug_port": [
+     0.3477,
+     0.6806
+    ],
+    "peripherals": [
+     0.6628,
+     0.4341
+    ]
+   },
+   "labels": {
+    "network": "Ethernet",
+    "cloud_link": "Cloud link",
+    "main_controller": "Controller",
+    "debug_port": "Service port",
+    "peripherals": "Tool I/O · gripper"
+   },
+   "platforms": [
+    "universal-robots"
+   ]
+  },
+  {
+   "id": "quadruped",
+   "name": "Quadruped",
+   "hint": "Robot dogs (e.g. Unitree Go2, B2)",
+   "file": "renders/quadruped.png",
+   "width": 960,
+   "height": 960,
+   "anchors": {
+    "network": [
+     0.2408,
+     0.4183
+    ],
+    "cloud_link": [
+     0.5722,
+     0.122
+    ],
+    "main_controller": [
+     0.6337,
+     0.3786
+    ],
+    "debug_port": [
+     0.7507,
+     0.3301
+    ],
+    "peripherals": [
+     0.541,
+     0.2553
+    ]
+   },
+   "labels": {
+    "network": "Head · Wi-Fi",
+    "cloud_link": "Antenna",
+    "main_controller": "Main controller",
+    "debug_port": "Debug port",
+    "peripherals": "Expansion rail"
+   },
+   "platforms": [
+    "unitree"
+   ]
+  },
+  {
+   "id": "humanoid",
+   "name": "Humanoid",
+   "hint": "Bipedal robots (e.g. Unitree G1, H1)",
+   "file": "renders/humanoid.png",
+   "width": 960,
+   "height": 960,
+   "anchors": {
+    "network": [
+     0.5153,
+     0.1684
+    ],
+    "cloud_link": [
+     0.5153,
+     0.0834
+    ],
+    "main_controller": [
+     0.5188,
+     0.3329
+    ],
+    "debug_port": [
+     0.5364,
+     0.4942
+    ],
+    "peripherals": [
+     0.5934,
+     0.4171
+    ]
+   },
+   "labels": {
+    "network": "Head · Wi-Fi",
+    "cloud_link": "Antenna",
+    "main_controller": "Main computer",
+    "debug_port": "Debug port",
+    "peripherals": "USB"
+   },
+   "platforms": []
+  },
+  {
+   "id": "drone",
+   "name": "Drone",
+   "hint": "Quadcopters and UAVs",
+   "file": "renders/drone.png",
+   "width": 960,
+   "height": 960,
+   "anchors": {
+    "network": [
+     0.5038,
+     0.4422
+    ],
+    "cloud_link": [
+     0.4586,
+     0.3646
+    ],
+    "main_controller": [
+     0.5449,
+     0.5153
+    ],
+    "debug_port": [
+     0.3945,
+     0.4785
+    ],
+    "peripherals": [
+     0.5392,
+     0.5742
+    ]
+   },
+   "labels": {
+    "network": "Radio link",
+    "cloud_link": "GPS · telemetry",
+    "main_controller": "Flight controller",
+    "debug_port": "Debug port",
+    "peripherals": "Camera · payload"
+   },
+   "platforms": []
+  },
+  {
+   "id": "generic",
+   "name": "Controller box",
+   "hint": "Robot controllers, gateways, edge computers",
+   "file": "renders/generic.png",
+   "width": 960,
+   "height": 960,
+   "anchors": {
+    "network": [
+     0.4372,
+     0.7763
+    ],
+    "cloud_link": [
+     0.6487,
+     0.1132
+    ],
+    "main_controller": [
+     0.5266,
+     0.4964
+    ],
+    "debug_port": [
+     0.6982,
+     0.6911
+    ],
+    "peripherals": [
+     0.5585,
+     0.7291
+    ]
+   },
+   "labels": {
+    "network": "Ethernet",
+    "cloud_link": "Wi-Fi antenna",
+    "main_controller": "Compute module",
+    "debug_port": "Serial console",
+    "peripherals": "USB"
+   },
+   "platforms": []
+  }
+ ]
+}

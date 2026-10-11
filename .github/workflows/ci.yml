@@ -1,0 +1,157 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Lint + unit tests (${{ matrix.os }}, Python ${{ matrix.python }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        python: ["3.11", "3.14"]   # oldest and newest supported
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Install
+        run: uv venv && uv pip install -e ".[papers,charts,docs]"
+      - name: Lint
+        run: uvx ruff check src tests
+      - name: Unit tests
+        run: uv run --no-sync python -m unittest discover -s tests -t . -v
+
+  integration:
+    # The real first-run path: `glitched setup` against an empty PostgreSQL,
+    # then `glitched doctor`. NVD is skipped (rate-limited without a key).
+    name: Setup against PostgreSQL
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      DATABASE_URL: postgresql://postgres@localhost:5432/glitched
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.12"
+      - name: Install
+        run: uv venv && uv pip install -e .
+      - name: glitched setup
+        run: uv run --no-sync glitched setup --skip-nvd
+      - name: glitched doctor
+        run: uv run --no-sync glitched doctor
+      - name: Database tests (snapshot round trip)
+        env:
+          GLITCHED_TEST_DATABASE_URL: postgresql://postgres@localhost:5432/postgres
+        run: uv run --no-sync python -m unittest tests.test_snapshot_db -v
+      - name: Scan tests against the threat intel (no transaction held while probing)
+        env:
+          GLITCHED_TEST_INTEL_URL: postgresql://postgres@localhost:5432/glitched
+        run: uv run --no-sync python -m unittest tests.test_scanning -v
+      - name: Snapshot export + setup --snapshot into a fresh database
+        run: |
+          uv run --no-sync glitched snapshot export intel.zip
+          uv run --no-sync glitched --database-url postgresql://postgres@localhost:5432/from_snapshot setup --snapshot intel.zip
+          uv run --no-sync glitched --database-url postgresql://postgres@localhost:5432/from_snapshot doctor
+
+  docker:
+    # The "Run with Docker" path from the README: build the image, then setup
+    # and doctor against the compose PostgreSQL. -T: no terminal in CI.
+    name: Docker Compose
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: glitched setup
+        run: docker compose run --rm -T glitched setup --skip-nvd
+      - name: glitched doctor
+        run: docker compose run --rm -T glitched doctor
+      - name: Runner image has no third-party packages
+        run: |
+          docker build -f Dockerfile.runner -t glitched-runner:ci .
+          docker run --rm glitched-runner:ci --version
+          test "$(docker run --rm --entrypoint pip glitched-runner:ci list --format=freeze | grep -v -e '^glitched==' -e '^pip==' | wc -l)" -eq 0
+      - name: Clean up
+        if: always()
+        run: docker compose down -v
+
+  secrets:
+    name: Secret scan
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read   # gitleaks-action lists a PR's commits to scan them
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # scan the whole history, not just the last commit
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  build:
+    name: Build wheel
+    needs: [test]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - name: Build
+        run: uv build
+      - name: Check the wheel contains every tracked package file
+        # .gitignore patterns also exclude files from the wheel - this caught
+        # the research dbt models going missing once.
+        run: |
+          python3 - <<'PY'
+          import glob, subprocess, zipfile
+          tracked = {f.removeprefix("src/") for f in subprocess.check_output(["git", "ls-files", "src/glitched"], text=True).split()}
+          wheel = set(zipfile.ZipFile(glob.glob("dist/*.whl")[0]).namelist())
+          missing = sorted(tracked - wheel)
+          if missing:
+              raise SystemExit("missing from the wheel: " + ", ".join(missing))
+          print(f"all {len(tracked)} tracked package files are in the wheel")
+          PY
+      - name: Check the wheel installs and runs
+        run: |
+          uv venv /tmp/wheel-check
+          VIRTUAL_ENV=/tmp/wheel-check uv pip install dist/*.whl
+          /tmp/wheel-check/bin/glitched --help
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+  release:
+    # Pushing a tag like v0.1.0 publishes a GitHub Release with the wheel.
+    # Attach a threat-intel snapshot by hand afterwards (see RELEASING.md).
+    name: Release
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [test, integration, docker, secrets, build]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*
+          generate_release_notes: true

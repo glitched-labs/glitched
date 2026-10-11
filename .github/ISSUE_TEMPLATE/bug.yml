@@ -1,0 +1,27 @@
+name: Something broke
+description: An error, a crash, or a result that looks wrong
+labels: [bug]
+body:
+  - type: textarea
+    attributes:
+      label: What did you run?
+      description: The exact command(s), e.g. `glitched setup --snapshot intel.zip`
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: What happened?
+      description: Paste the output. Remove anything private (device IPs, names) first.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: What did you expect?
+  - type: textarea
+    attributes:
+      label: Debug bundle
+      description: Run `glitched debug-bundle` and attach the .zip (it has no device data or secrets - open it to check).
+  - type: dropdown
+    attributes:
+      label: How did you install it?
+      options: [uv tool install, pipx, Docker, from a git checkout]

@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Glitched</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="/style.css">
+  <script src="/app.js" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <h1 class="brand">Glitched</h1>
+    <div class="robot-title">
+      <label class="robot-picker" hidden>
+        <span class="visually-hidden">Robot</span>
+        <select id="robot-select"></select>
+      </label>
+      <div class="topbar-meta" id="robot-meta"></div>
+    </div>
+    <details class="menu" id="more-menu">
+      <summary class="button secondary">More</summary>
+      <div class="menu-list">
+        <button id="details-button" class="menu-item" type="button" hidden>Robot details</button>
+        <button id="plan-button" class="menu-item" type="button" hidden>What a scan sends</button>
+        <button id="add-button" class="menu-item" type="button">Add another robot</button>
+      </div>
+    </details>
+    <button id="scan-button" class="button" type="button" hidden>Scan now</button>
+  </header>
+
+  <section id="notice" class="notice" hidden>
+    <h2>Before you scan</h2>
+    <pre id="notice-text"></pre>
+    <label class="check">
+      <input type="checkbox" id="notice-accept">
+      I will only scan devices I own or am authorized to test.
+    </label>
+    <button id="notice-button" class="button" type="button">Accept</button>
+  </section>
+
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+
+  <main id="empty" class="empty" hidden>
+    <h1>No robots yet</h1>
+    <p>Add a robot you own or are authorized to test. You'll describe it in plain language, then scan it.</p>
+    <button id="empty-add" class="button" type="button">Add your first robot</button>
+    <p class="muted">Or from a terminal: <code>glitched device add</code></p>
+  </main>
+
+  <main id="robot-view" class="layout" hidden>
+    <section class="left" aria-label="Findings">
+      <article id="panel" class="panel" aria-live="polite"></article>
+      <div class="list-head">
+        <h2 id="list-title">Findings</h2>
+        <label class="check small"><input type="checkbox" id="show-closed"> Show closed</label>
+      </div>
+      <div id="finding-list" class="finding-list"></div>
+    </section>
+    <section class="right" aria-label="Robot picture">
+      <div id="placing" class="placing" hidden>
+        <p id="placing-help"><strong>Place the parts.</strong> Pick a part, then click where it is on the picture. Arrow keys nudge it.</p>
+        <div id="placing-parts" class="placing-parts"></div>
+        <div class="placing-actions">
+          <button id="placing-save" class="button" type="button">Save parts</button>
+          <button id="placing-cancel" class="button secondary" type="button">Cancel</button>
+        </div>
+      </div>
+      <div class="stage" id="stage">
+        <div class="picture-tools">
+          <button id="change-picture" class="button secondary small" type="button">Change picture</button>
+          <button id="edit-parts" class="button secondary small" type="button">Edit parts</button>
+        </div>
+        <img id="robot-image" alt="">
+        <div id="overlay" class="overlay"></div>
+      </div>
+      <p id="picture-credit" class="credit"></p>
+      <p id="unplaced" class="muted unplaced" hidden></p>
+      <p class="legend muted">
+        <span class="dot open"></span> open finding
+        <span class="dot fixed"></span> fix applied
+        <span class="dot clear"></span> nothing open
+      </p>
+    </section>
+  </main>
+  <dialog id="picker" class="picker" aria-labelledby="picker-title">
+    <div class="picker-head">
+      <h2 id="picker-title">Choose a picture of your robot</h2>
+      <button id="picker-close" class="button secondary small" type="button" aria-label="Close">Close</button>
+    </div>
+    <div id="picker-grid" class="picker-grid"></div>
+    <label class="upload-tile">
+      <input id="upload-input" type="file" accept="image/png,image/jpeg,image/webp">
+      <strong>Upload your own photo</strong>
+      <span class="muted">PNG, JPEG or WebP, up to 8 MB. It stays on this computer; location data is removed from JPEG photos.</span>
+    </label>
+  </dialog>
+  <dialog id="plan-dialog" class="picker plan" aria-labelledby="plan-title">
+    <div class="picker-head">
+      <h2 id="plan-title">What a scan sends</h2>
+      <button class="button secondary small" type="button" data-close-plan>Close</button>
+    </div>
+    <div id="plan-body"></div>
+    <div class="placing-actions" id="plan-actions">
+      <button id="plan-start" class="button" type="button">Start scan</button>
+      <button class="button secondary" type="button" data-close-plan>Cancel</button>
+    </div>
+  </dialog>
+
+  <dialog id="robot-form" class="picker form" aria-labelledby="form-title">
+    <form id="robot-form-body" method="dialog" novalidate>
+      <div class="picker-head">
+        <h2 id="form-title">Add a robot</h2>
+        <button class="button secondary small" type="button" data-close>Close</button>
+      </div>
+
+      <fieldset id="basics">
+        <legend>The robot</legend>
+        <label class="field">Name
+          <input name="name" type="text" maxlength="60" required placeholder="e.g. pipe-inspector" autocomplete="off">
+        </label>
+        <label class="field">Address on your network
+          <input name="host" type="text" required placeholder="e.g. 192.168.1.50 or robot.local" autocomplete="off">
+          <span class="hint">One IP address or hostname. Your router's device list shows it.</span>
+        </label>
+        <label class="field">Why are you allowed to test it?
+          <input name="authorization" type="text" required placeholder="e.g. I own it / lab robot, approved by J. Smith" autocomplete="off">
+          <span class="hint">Recorded with every scan. Only add robots you own or are authorized to test.</span>
+        </label>
+        <label class="check" id="public-row" hidden>
+          <input name="allow_public" type="checkbox">
+          I'm authorized to test this public internet address.
+        </label>
+        <label class="field narrow" hidden>Re-scan every
+          <span class="inline"><input name="every_hours" type="number" min="1" max="8760" value="24"> hours (when autoscan runs)</span>
+        </label>
+      </fieldset>
+
+      <fieldset id="picture-fieldset">
+        <legend>What does it look like?</legend>
+        <div id="form-pictures" class="mini-grid"></div>
+        <span class="hint">You can upload your own photo later with “Change picture”.</span>
+      </fieldset>
+
+      <fieldset>
+        <legend>What is it built on?</legend>
+        <div id="form-platforms" class="checks"></div>
+        <label class="field narrow-select" id="ros-distro-row" hidden>Which ROS distro?
+          <select name="ros_distro"></select>
+          <span class="hint">Decides which ROS vulnerabilities apply - ROS 1 and ROS 2 bugs are different.</span>
+        </label>
+      </fieldset>
+
+      <fieldset>
+        <legend>A few questions</legend>
+        <p class="hint">Plain answers are fine - “not sure” counts as no, and you can change them later.</p>
+        <div id="form-questions"></div>
+        <div id="form-interfaces-wrap" hidden>
+          <p class="sub">How does it talk to other systems?</p>
+          <div id="form-interfaces" class="checks"></div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Software list (optional)</legend>
+        <p class="hint">Lets Glitched check your software's exact versions against known vulnerabilities. On the robot, run
+          <code>dpkg-query -W</code> (or <code>ros2 pkg list</code>, <code>pip freeze</code>) and paste the output,
+          or upload a CycloneDX/SPDX SBOM.</p>
+        <label class="field">Paste a package list
+          <textarea name="packages" rows="5" spellcheck="false" placeholder="mosquitto&#9;2.0.18-1&#10;ros-humble-nav2-planner&#9;1.1.12-1jammy..."></textarea>
+        </label>
+        <label class="field">…or upload a file
+          <input name="sbom" type="file" accept=".json,.txt,application/json,text/plain">
+        </label>
+        <p id="form-components" class="hint" hidden></p>
+      </fieldset>
+
+      <p id="form-error" class="form-error" role="alert" hidden></p>
+      <div class="placing-actions">
+        <button id="form-submit" class="button" type="submit">Add robot</button>
+        <button class="button secondary" type="button" data-close>Cancel</button>
+      </div>
+    </form>
+  </dialog>
+</body>
+</html>

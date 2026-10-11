@@ -1,0 +1,12 @@
+# Development runner policy: only the fake robot may be probed. The decoy
+# (172.31.250.20) sits on the same network and must always be refused.
+[targets]
+allow = ["172.31.250.10/32"]
+deny = ["172.31.250.1"]   # the network's gateway
+allow_public = false
+
+[limits]
+max_jobs_per_hour = 120
+
+[evidence]
+mode = "full"

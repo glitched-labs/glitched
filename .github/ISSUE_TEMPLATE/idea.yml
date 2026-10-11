@@ -1,0 +1,12 @@
+name: Idea
+description: Something Glitched should do, check or show
+labels: [idea]
+body:
+  - type: textarea
+    attributes:
+      label: What would you like Glitched to do?
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Why - what device or situation is it for?

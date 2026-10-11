@@ -1,0 +1,29 @@
+# The on-site runner: pairs with a hosted console and probes robots only as
+# its local policy allows. Standard library only (installed with --no-deps),
+# runs as an unprivileged user, listens on no port, and can run with a
+# read-only root and no capabilities:
+#
+#   docker run --rm -v glitched-runner:/state IMAGE pair --console https://console.example.com --code ABCDE-FGHJK
+#   docker run -d --read-only --cap-drop ALL -v glitched-runner:/state \
+#     -v $PWD/policy.toml:/etc/glitched-runner/policy.toml:ro IMAGE run
+FROM python:3.12-slim
+
+WORKDIR /build
+COPY pyproject.toml README.md LICENSE NOTICE.md ./
+COPY src ./src
+RUN pip install --no-cache-dir --no-deps . \
+ && cd / && rm -rf /build \
+ && python -c "import glitched.runner.main"
+
+RUN useradd --no-create-home --uid 10001 --shell /usr/sbin/nologin runner \
+ && mkdir -p /state /etc/glitched-runner && chown 10001 /state
+USER 10001
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    GLITCHED_RUNNER_STATE=/state \
+    GLITCHED_RUNNER_POLICY=/etc/glitched-runner/policy.toml
+VOLUME ["/state"]
+WORKDIR /state
+
+ENTRYPOINT ["glitched-runner"]
+CMD ["run"]

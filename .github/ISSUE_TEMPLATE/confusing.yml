@@ -1,0 +1,17 @@
+name: This was confusing
+description: Unclear wording, a step you got stuck on, or docs that didn't match what happened
+labels: [ux]
+body:
+  - type: textarea
+    attributes:
+      label: Where were you, and what were you trying to do?
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: What was confusing?
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: What would have helped?
