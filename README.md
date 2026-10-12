@@ -24,7 +24,7 @@ own or are authorized to test.
 **Quickstart:** `uv tool install "git+https://github.com/glitched-labs/glitched" && glitched setup` - see what
 affects your robot in about five minutes.
 
-* [Read what Glitched is and who it's for](docs/index.md)
+* [Read what Glitched is and who it's for](https://docs.glitchedlabs.com)
 * [Try it without a robot](docs/sample-report.md)
 
 ### Use cases
@@ -57,7 +57,7 @@ glitched scan --profile glitch.yaml --host 192.168.50.20 --authorization "self-o
 * [**First run**](TESTING.md): a guided 15 minutes, start to finish
 
 ### Documentation
-- 📚 [Docs](docs/index.md) - also a website: `python -m glitched.docsite serve`
+- 📚 [docs.glitchedlabs.com](https://docs.glitchedlabs.com) - the docs website (or `python -m glitched.docsite serve` locally)
 - 🧭 [CLI guide](docs/cli.md) and ⌨️ [command reference](docs/cli-reference.md)
 - 🛡️ [Safety: what a scan sends, and the guardrails](docs/safety.md)
 - 🗄️ [The threat-intel data system](docs/threat-intel.md)

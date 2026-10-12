@@ -35,7 +35,7 @@ charts = ["matplotlib>=3.8"]
 docs = ["markdown>=3.6"]
 
 [project.urls]
-Documentation = "https://github.com/glitched-labs/glitched/tree/main/docs"
+Documentation = "https://docs.glitchedlabs.com"
 Source = "https://github.com/glitched-labs/glitched"
 Issues = "https://github.com/glitched-labs/glitched/issues"
 
