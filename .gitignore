@@ -6,8 +6,6 @@ dotenv
 __pycache__/
 
 # dbt build output
-src/glitched/pipelines/transform/target/
-src/glitched/pipelines/transform/logs/
 *.pyc
 
 # Local tool settings
@@ -29,7 +27,6 @@ security_testing_for_robotics.md
 breach_history.md*
 *.ipynb
 /data/sources/
-src/glitched/pipelines/transform/.user.yml
 dist/
 
 

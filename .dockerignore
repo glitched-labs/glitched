@@ -7,6 +7,3 @@
 !docs/
 !src/
 src/**/__pycache__
-src/glitched/pipelines/transform/target
-src/glitched/pipelines/transform/logs
-src/glitched/pipelines/transform/.user.yml
