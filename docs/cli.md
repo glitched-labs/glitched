@@ -13,15 +13,16 @@ for any command. The [command reference](cli-reference.md) lists every one.
 
 ```bash
 uv tool install "git+https://github.com/glitched-labs/glitched"   # or: pipx install "git+https://..."
-glitched setup                           # create the database, load the threat intel (~1 min)
+glitched setup                           # build the threat-intel database (needs glitched-pipelines)
 glitched doctor                          # check everything; prints a fix for anything broken
 glitched acknowledge                     # accept the authorized-use notice (once, before scanning)
 ```
 
-You need PostgreSQL. By default it's `postgresql://localhost:5432/glitched`; see
-[Settings](#settings) to change that. `glitched setup` is safe to re-run: it refreshes the
-threat data. Without network access, start from a colleague's snapshot instead:
-`glitched setup --snapshot intel.zip`.
+You need a PostgreSQL database that holds the threat intel. By default it's
+`postgresql://localhost:5432/glitched`; see [Settings](#settings) to change that. The data is built by
+the private `glitched-pipelines` package: with it installed, `glitched setup` creates and refreshes the
+database (and `glitched setup --snapshot intel.zip` starts from a snapshot). Without it, point
+`database_url` at a database someone else built; every other command works the same.
 
 ## What affects my device?
 
@@ -139,7 +140,7 @@ current folder (or a parent folder), then the config file (`glitched config path
 |---|---|---|
 | `database_url` | `DATABASE_URL` | PostgreSQL connection string (default `postgresql://localhost:5432/glitched`) |
 | `nvd_api_key` | `NVD_API_KEY` | NVD API key: optional, makes NVD loads about 10x faster |
-| `anthropic_api_key` | `ANTHROPIC_API_KEY` | optional: classifies research papers (`setup --papers`) |
+| `anthropic_api_key` | `ANTHROPIC_API_KEY` | optional: classifies research papers (`setup --papers`, glitched-pipelines) |
 | `dbt_command` | `DBT_COMMAND` | how to run dbt (default: dbt-core + dbt-postgres via uvx) |
 | `research_dir` | `GLITCHED_RESEARCH_DIR` | a folder of curated `CVE-*.md` notes (optional) |
 
@@ -149,6 +150,8 @@ glitched config set nvd_api_key      # prompts, hidden; stored readable only by 
 ```
 
 ## Share threat intel offline
+
+These two commands need the private `glitched-pipelines` package.
 
 ```bash
 glitched snapshot export intel.zip            # raw EMB3D, ATLAS and NVD tables

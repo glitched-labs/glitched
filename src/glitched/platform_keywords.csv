@@ -1,0 +1,23 @@
+keyword,tag,nvd_search
+ros,ros,true
+ros2,ros,true
+robot operating system,ros,true
+rosparam,ros,true
+universal robots,universal-robots,true
+polyscope,universal-robots,true
+unitree,unitree,true
+go2,unitree,true
+lerobot,lerobot,true
+hugging face,lerobot,false
+huggingface,lerobot,false
+ble,bluetooth,false
+bluetooth,bluetooth,false
+wifi,wifi,false
+wi-fi,wifi,false
+mqtt,mqtt,true
+rosbridge,rosbridge,true
+pickle,deserialization,false
+deserialization,deserialization,false
+command injection,command-injection,false
+remote code execution,rce,false
+firmware,firmware,false

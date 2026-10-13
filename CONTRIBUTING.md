@@ -7,7 +7,7 @@ the bar is: **safe by default, explained in plain words, and tested.**
 
 ```bash
 git clone https://github.com/glitched-labs/glitched && cd glitched
-uv venv && uv pip install -e ".[papers,charts,docs]"
+uv venv && uv pip install -e ".[charts,docs]"
 uvx ruff check src tests
 python -m unittest discover -s tests -t .
 ```

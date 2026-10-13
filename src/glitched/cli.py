@@ -28,7 +28,6 @@ non-destructive connect-only recon against the single declared target host.
 from __future__ import annotations
 
 import argparse
-import importlib
 import logging
 import time
 from pathlib import Path
@@ -41,7 +40,7 @@ from rich.table import Table
 
 import glitched
 from glitched import catalog
-from glitched import device_profile
+from glitched import device_profile, intel
 from glitched import findings as robot_findings
 from glitched import visuals as robot_visuals
 from glitched import ui
@@ -93,7 +92,6 @@ from glitched.scanning import (  # noqa: F401 - the scan helpers used to live he
     validate_properties as _validate_properties,
     write_evidence as _write_evidence,
 )
-from glitched.pipelines import run as pipeline_run
 from glitched.queries import THREATS_FOR_PROPERTIES_SQL, get_exposure
 
 logger = logging.getLogger(__name__)
@@ -211,7 +209,7 @@ AUTHZ_QUESTION = "Authorization attestation (confirm you own or are authorized t
 HOST_QUESTION = "Target host/IP (isolated lab only, leave blank if none)"
 
 COMMAND_DESCRIPTIONS = {
-    "setup": "first run: create the database and load all threat intel",
+    "setup": "build the threat-intel database (needs glitched-pipelines)",
     "doctor": "check your install and say how to fix anything wrong",
     "onboard": "describe your device and see which vulns affect it",
     "exposure": "re-check what affects your profiled device (flags new items)",
@@ -849,12 +847,12 @@ def cmd_exposure(args: argparse.Namespace) -> None:
     if args.refresh:
         select: set[str] = set()
         for name in REFRESH_SOURCES:
-            module = importlib.import_module(f"glitched.pipelines.{name}")
+            module = intel.load(name)
             with console.status(f"Refreshing threat intel: {name}…"):
                 module.run(args.database_url)
             select.update(module.DBT_SELECT)
         with console.status("Rebuilding the warehouse (dbt)…"):
-            pipeline_run.run_dbt(sorted(select), args.database_url, quiet=True)
+            intel.load("run").run_dbt(sorted(select), args.database_url, quiet=True)
     profile = device_profile.load(Path(args.profile))
 
     state: dict = {}
@@ -1193,7 +1191,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--version", action="version", version=f"glitched {glitched.__version__}")
     sub = parser.add_subparsers(dest="command")
 
-    p = sub.add_parser("setup", help="create the database and load all threat intel (run once, re-run to refresh)")
+    p = sub.add_parser("setup", help="build the threat-intel database (needs glitched-pipelines; re-run to refresh)")
     p.add_argument("--skip-nvd", action="store_true", help="skip NVD (it takes about a minute without an API key)")
     p.add_argument("--papers", action="store_true",
                    help="also load research papers (classification needs the [papers] extra and ANTHROPIC_API_KEY)")
@@ -1203,7 +1201,7 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--refresh", action="store_true", help="with --snapshot: also fetch anything newer")
     p.set_defaults(func=cmd_setup)
 
-    p = sub.add_parser("snapshot", help="export or import a threat-intel snapshot to share with others")
+    p = sub.add_parser("snapshot", help="export or import a threat-intel snapshot (needs glitched-pipelines)")
     snapshot_sub = p.add_subparsers(dest="snapshot_command", required=True)
     pp = snapshot_sub.add_parser("export", help="write the raw threat intel (ATLAS, EMB3D, NVD) to a .zip")
     pp.add_argument("path", help="the .zip to write")

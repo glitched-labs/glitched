@@ -39,8 +39,8 @@ export DATABASE_URL="postgresql://${USER}:glitched@localhost:5432/glitched"
 
 **Rather run all of Glitched in Docker?** Skip steps 1-2: clone this
 repository, and in its folder put `docker compose run --rm` in front of every
-`glitched` command in this guide, e.g. `docker compose run --rm glitched setup`.
-Keep snapshot files and `glitch.yaml` in that folder. See "Run with Docker" in
+`glitched` command in this guide, e.g. `docker compose run --rm glitched doctor`.
+Keep `glitch.yaml` in that folder. See "Run with Docker" in
 the README.
 
 ## 2. Install Glitched
@@ -50,19 +50,13 @@ uv tool install "git+https://github.com/glitched-labs/glitched"     # or a relea
 glitched --version
 ```
 
-## 3. Load the threat data
+## 3. Point Glitched at the threat data
 
-If your invitation came with a snapshot file (`glitched-intel-*.zip`), this
-takes a few seconds:
-
-```bash
-glitched setup --snapshot glitched-intel-v0.1.0.zip
-```
-
-Otherwise download everything (about a minute):
+Glitched reads the threat intel from a PostgreSQL database. Your invitation says which one: either a
+`DATABASE_URL` to set, or the private `glitched-pipelines` package, which builds it locally (about a minute):
 
 ```bash
-glitched setup
+glitched setup          # only with glitched-pipelines installed; otherwise set DATABASE_URL
 ```
 
 Then check that everything is working:
@@ -133,11 +127,11 @@ fix each one.
 | You see | Fix |
 |---|---|
 | `Can't connect to postgresql://...` | PostgreSQL isn't running: `brew services start postgresql@17`, or start your Docker container. |
-| `... doesn't exist yet - run glitched setup first` | Run `glitched setup`. |
+| `... doesn't exist yet - run glitched setup first` | The database has no threat intel yet: check `DATABASE_URL`, or run `glitched setup` if you have glitched-pipelines. |
 | `Glitched needs a one-time acknowledgement` | Run `glitched acknowledge`. |
 | `... is a public address` | You're pointing at an internet address, not your device. Check the IP. |
 | `uvx not found` | Install uv (step 1). |
-| NVD part of setup is slow | Normal without an API key (about a minute). `glitched setup --skip-nvd` skips it. |
+| NVD part of setup is slow | Normal without an API key (about a minute). `glitched setup --skip-nvd` skips it (glitched-pipelines only). |
 
 ## Sending feedback
 

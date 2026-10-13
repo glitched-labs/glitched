@@ -7,8 +7,8 @@ Every `glitched` command and option. For what to use when, with examples, see
 
 Generated from the CLI itself - `glitched <command> --help` says the same.
 
-- [`glitched setup`](#glitched-setup) - create the database and load all threat intel (run once, re-run to refresh)
-- [`glitched snapshot`](#glitched-snapshot) - export or import a threat-intel snapshot to share with others
+- [`glitched setup`](#glitched-setup) - build the threat-intel database (needs glitched-pipelines; re-run to refresh)
+- [`glitched snapshot`](#glitched-snapshot) - export or import a threat-intel snapshot (needs glitched-pipelines)
   - [`glitched snapshot export`](#glitched-snapshot-export) - write the raw threat intel (ATLAS, EMB3D, NVD) to a .zip
   - [`glitched snapshot import`](#glitched-snapshot-import) - load a snapshot's raw tables (use `setup --snapshot` to also build)
 - [`glitched doctor`](#glitched-doctor) - check the install; exit 1 if something is broken
@@ -58,7 +58,7 @@ Every command also takes these:
 
 ## `glitched setup`
 
-Create the database and load all threat intel (run once, re-run to refresh).
+Build the threat-intel database (needs glitched-pipelines; re-run to refresh).
 
 ```
 glitched setup [--skip-nvd] [--papers] [--classify-limit CLASSIFY_LIMIT] [--snapshot FILE] [--refresh]
@@ -74,7 +74,7 @@ glitched setup [--skip-nvd] [--papers] [--classify-limit CLASSIFY_LIMIT] [--snap
 
 ## `glitched snapshot`
 
-Export or import a threat-intel snapshot to share with others.
+Export or import a threat-intel snapshot (needs glitched-pipelines).
 
 ### `glitched snapshot export`
 

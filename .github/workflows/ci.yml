@@ -24,72 +24,27 @@ jobs:
         with:
           python-version: ${{ matrix.python }}
       - name: Install
-        run: uv venv && uv pip install -e ".[papers,charts,docs]"
+        run: uv venv && uv pip install -e ".[charts,docs]"
       - name: Lint
         run: uvx ruff check src tests
       - name: Unit tests
         run: uv run --no-sync python -m unittest discover -s tests -t . -v
 
-  integration:
-    # The real first-run path: `glitched setup` against an empty PostgreSQL,
-    # then `glitched doctor`. NVD is skipped (rate-limited without a key).
-    name: Setup against PostgreSQL
-    runs-on: ubuntu-latest
-    services:
-      postgres:
-        image: postgres:17
-        env:
-          POSTGRES_HOST_AUTH_METHOD: trust
-        ports: ["5432:5432"]
-        options: >-
-          --health-cmd "pg_isready -U postgres"
-          --health-interval 5s --health-timeout 5s --health-retries 10
-    env:
-      DATABASE_URL: postgresql://postgres@localhost:5432/glitched
-    steps:
-      - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v6
-        with:
-          python-version: "3.12"
-      - name: Install
-        run: uv venv && uv pip install -e .
-      - name: glitched setup
-        run: uv run --no-sync glitched setup --skip-nvd
-      - name: glitched doctor
-        run: uv run --no-sync glitched doctor
-      - name: Database tests (snapshot round trip)
-        env:
-          GLITCHED_TEST_DATABASE_URL: postgresql://postgres@localhost:5432/postgres
-        run: uv run --no-sync python -m unittest tests.test_snapshot_db -v
-      - name: Scan tests against the threat intel (no transaction held while probing)
-        env:
-          GLITCHED_TEST_INTEL_URL: postgresql://postgres@localhost:5432/glitched
-        run: uv run --no-sync python -m unittest tests.test_scanning -v
-      - name: Snapshot export + setup --snapshot into a fresh database
-        run: |
-          uv run --no-sync glitched snapshot export intel.zip
-          uv run --no-sync glitched --database-url postgresql://postgres@localhost:5432/from_snapshot setup --snapshot intel.zip
-          uv run --no-sync glitched --database-url postgresql://postgres@localhost:5432/from_snapshot doctor
-
   docker:
-    # The "Run with Docker" path from the README: build the image, then setup
-    # and doctor against the compose PostgreSQL. -T: no terminal in CI.
-    name: Docker Compose
+    # The "Run with Docker" path from the README: the image builds and the CLI starts.
+    name: Docker image
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: glitched setup
-        run: docker compose run --rm -T glitched setup --skip-nvd
-      - name: glitched doctor
-        run: docker compose run --rm -T glitched doctor
+      - name: Build and run the CLI image
+        run: |
+          docker build -t glitched:ci .
+          docker run --rm glitched:ci --version
       - name: Runner image has no third-party packages
         run: |
           docker build -f Dockerfile.runner -t glitched-runner:ci .
           docker run --rm glitched-runner:ci --version
           test "$(docker run --rm --entrypoint pip glitched-runner:ci list --format=freeze | grep -v -e '^glitched==' -e '^pip==' | wc -l)" -eq 0
-      - name: Clean up
-        if: always()
-        run: docker compose down -v
 
   secrets:
     name: Secret scan
@@ -139,10 +94,9 @@ jobs:
 
   release:
     # Pushing a tag like v0.1.0 publishes a GitHub Release with the wheel.
-    # Attach a threat-intel snapshot by hand afterwards (see RELEASING.md).
     name: Release
     if: startsWith(github.ref, 'refs/tags/v')
-    needs: [test, integration, docker, secrets, build]
+    needs: [test, docker, secrets, build]
     runs-on: ubuntu-latest
     permissions:
       contents: write

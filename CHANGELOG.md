@@ -7,6 +7,10 @@ while the major version is 0, minor versions may include breaking changes.
 
 The first open-source release, under the Apache License 2.0.
 
+The threat-intel pipelines (extract, load, dbt transform, snapshots) are not part of this package: they live in
+the private glitched-pipelines package. Without it the CLI reads an existing database (`DATABASE_URL`); `setup`,
+`snapshot` and `exposure --refresh` need it and say so.
+
 ### Added
 - The command line: `onboard`, `exposure`, SBOM and package-list import, connect-only
   `profile detect`, assessments (`create`, `plan`, `run`, `approve`, `report`, `posture`),

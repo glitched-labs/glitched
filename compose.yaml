@@ -1,11 +1,11 @@
 # Glitched + PostgreSQL. Everything runs with:
 #
-#   docker compose run --rm glitched setup        # first time: load threat intel
 #   docker compose run --rm glitched doctor
 #   docker compose run --rm glitched onboard
 #
 # The database isn't published to your machine; only the glitched container
 # can reach it. Data survives restarts in the named volumes below.
+# The image has no pipelines, so the database starts empty: point DATABASE_URL at one that has the threat intel.
 
 services:
   db:
@@ -30,11 +30,8 @@ services:
         condition: service_healthy
     environment:
       DATABASE_URL: postgresql://glitched:glitched@db:5432/glitched
-      # Optional keys, passed through from your shell or a .env file next to this file.
-      NVD_API_KEY: ${NVD_API_KEY:-}
-      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
     volumes:
-      - glitched-data:/data   # config, acknowledgement, evidence, dbt cache
+      - glitched-data:/data   # config, acknowledgement, evidence
       - ./:/work              # your current folder: glitch.yaml profiles, SBOMs
     stdin_open: true
     tty: true

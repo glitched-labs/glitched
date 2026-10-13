@@ -21,8 +21,8 @@ software - and it lists what applies, each with *why*. Then it verifies on a lab
 connect-only probes, and keeps every finding from found to fixed. It runs on your machine, against robots you
 own or are authorized to test.
 
-**Quickstart:** `uv tool install "git+https://github.com/glitched-labs/glitched" && glitched setup` - see what
-affects your robot in about five minutes.
+**Quickstart:** `uv tool install "git+https://github.com/glitched-labs/glitched" && glitched onboard` - see what
+affects your robot in about five minutes (needs a threat-intel database; see [Install](docs/install.md)).
 
 * [Read what Glitched is and who it's for](https://docs.glitchedlabs.com)
 * [Try it without a robot](docs/sample-report.md)
@@ -37,8 +37,8 @@ affects your robot in about five minutes.
 
 ### Data sources
 MITRE EMB3D, MITRE ATLAS, NIST NVD with CISA's known-exploited list, and your robot's own SBOM (CycloneDX,
-SPDX) or package list (`dpkg-query -W`, `pip freeze`, `ros2 pkg list`). Loaded into your own PostgreSQL;
-snapshots for machines without internet access.
+SPDX) or package list (`dpkg-query -W`, `pip freeze`, `ros2 pkg list`). Read from a PostgreSQL database that
+the private `glitched-pipelines` package fills; point `DATABASE_URL` at an existing one.
 
 ### A short taste
 ```bash
@@ -50,8 +50,8 @@ glitched scan --profile glitch.yaml --host 192.168.50.20 --authorization "self-o
 <img alt="glitched exposure for a ROS 2 Humble robot built on Unitree: CVEs that apply, each with why" src="docs/assets/exposure.svg">
 
 ## Getting started
-* [**Install**](docs/install.md): Python 3.11+, PostgreSQL and [uv](https://docs.astral.sh/uv/) - or everything in
-  Docker: `docker compose run --rm glitched setup`
+* [**Install**](docs/install.md): Python 3.11+ and a PostgreSQL database with the threat intel in it - or the CLI in
+  Docker: `docker compose run --rm glitched doctor`
 * [**The command line**](docs/cli.md): describe a robot, check it, schedule checks, track findings
 * [**The robot scan UI**](docs/ui.md): `glitched ui` - the same in your browser, on `127.0.0.1` only
 * [**First run**](TESTING.md): a guided 15 minutes, start to finish
@@ -60,7 +60,6 @@ glitched scan --profile glitch.yaml --host 192.168.50.20 --authorization "self-o
 - 📚 [docs.glitchedlabs.com](https://docs.glitchedlabs.com) - the docs website (or `python -m glitched.docsite serve` locally)
 - 🧭 [CLI guide](docs/cli.md) and ⌨️ [command reference](docs/cli-reference.md)
 - 🛡️ [Safety: what a scan sends, and the guardrails](docs/safety.md)
-- 🗄️ [The threat-intel data system](docs/threat-intel.md)
 - 📡 [The on-site runner](docs/runner.md)
 - 🧪 [Try it without a robot](docs/sample-report.md)
 
@@ -114,8 +113,8 @@ Glitched works alongside them - it imports the SBOMs they produce. What it adds 
   for review.
 
 ## Business model
-Glitched is open core. The command line, threat-intel pipelines, local scan UI and on-site runner are open
-source, under the Apache License 2.0. The **Glitched console** - a hosted app for teams and fleets, with
+Glitched is open core. The command line, local scan UI and on-site runner are open source, under the Apache
+License 2.0. The threat-intel pipelines and the data they produce are proprietary and live in a private repository. The **Glitched console** - a hosted app for teams and fleets, with
 inventory, risk levels, code scanning with dependency fixes as pull requests, and an API for CI - is a commercial
 product built on this package.
 
@@ -123,7 +122,6 @@ product built on this package.
 * [`CONTRIBUTING.md`](CONTRIBUTING.md) - set up, the safety bar, regenerating the docs
 * [`SECURITY.md`](SECURITY.md) - reporting vulnerabilities privately
 * [`RELEASING.md`](RELEASING.md) and [`CHANGELOG.md`](CHANGELOG.md)
-* [`docs/threat-intel.md`](docs/threat-intel.md) - the pipelines, dbt models and their tests
 
 Licensed under the [Apache License 2.0](LICENSE). Threat data is downloaded from its sources under their own
 terms - see [NOTICE.md](NOTICE.md).

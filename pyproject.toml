@@ -19,7 +19,6 @@ classifiers = [
 ]
 dependencies = [
     "psycopg2-binary>=2.9",
-    "pydantic>=2.7",
     "rich>=13",
     "questionary>=2.0",
     "pyyaml>=6.0",
@@ -27,8 +26,6 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-# Classify research papers with Claude (data/papers pipeline).
-papers = ["anthropic>=1.11"]
 # EMB3D charts (glitched.charts).
 charts = ["matplotlib>=3.8"]
 # The docs site (python -m glitched.docsite build | serve).
@@ -44,7 +41,7 @@ glitched = "glitched.cli:main"
 glitched-runner = "glitched.runner.main:main"
 
 [dependency-groups]
-dev = ["anthropic>=1.11", "matplotlib>=3.8", "markdown>=3.6"]
+dev = ["matplotlib>=3.8", "markdown>=3.6"]
 
 [build-system]
 requires = ["hatchling>=1.27"]
@@ -55,14 +52,9 @@ path = "src/glitched/__init__.py"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/glitched"]
-# dbt build output must never end up in a release
-exclude = ["src/glitched/pipelines/transform/target", "src/glitched/pipelines/transform/logs",
-           "src/glitched/pipelines/transform/.user.yml"]
 
 [tool.hatch.build.targets.sdist]
 include = ["src/glitched", "tests", "README.md", "LICENSE", "NOTICE.md", ".env.example"]
-exclude = ["src/glitched/pipelines/transform/target", "src/glitched/pipelines/transform/logs",
-           "src/glitched/pipelines/transform/.user.yml"]
 
 [tool.ruff]
 line-length = 120

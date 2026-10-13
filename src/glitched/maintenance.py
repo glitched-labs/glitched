@@ -30,9 +30,8 @@ import glitched
 from glitched import config
 from glitched.config import secret
 from glitched.db import safe_url, ensure_database, query
-from glitched import safety, snapshot, ui
+from glitched import intel, safety, ui
 from glitched.paths import cache_home, data_home, research_notes_dir
-from glitched.pipelines import run as pipeline
 
 console = Console()
 
@@ -82,6 +81,7 @@ def cmd_setup(args: argparse.Namespace) -> None:
         raise SystemExit(database_help(args.database_url, exc)) from exc
     console.print("[green]✓[/green] Database ready")
 
+    intel.load()  # fail early, with the explanation, if the pipelines aren't installed
     runner = check_dbt_runner()
     if runner.status == "fail":
         raise SystemExit(f"{runner.detail}. {runner.fix}")
@@ -89,7 +89,7 @@ def cmd_setup(args: argparse.Namespace) -> None:
     loaded, failed = [], []
     if args.snapshot:
         with console.status(f"Importing snapshot {args.snapshot}…"):
-            manifest = snapshot.import_(Path(args.snapshot), args.database_url)
+            manifest = intel.load("snapshot").import_(Path(args.snapshot), args.database_url)
         schemas = sorted({t["schema"] for t in manifest["tables"]})
         console.print(f"[green]✓[/green] Snapshot from {manifest['created_at']} "
                       f"(Glitched {manifest['glitched_version']}): {', '.join(schemas)}")
@@ -102,7 +102,7 @@ def cmd_setup(args: argparse.Namespace) -> None:
         sources = []  # the snapshot is enough; --refresh also fetches anything newer
 
     for label, module_name, what in sources:
-        module = importlib.import_module(f"glitched.pipelines.{module_name}")
+        module = intel.load(module_name)
         started = time.monotonic()
         try:
             with console.status(f"Loading {label} ({what})…"):
@@ -121,7 +121,7 @@ def cmd_setup(args: argparse.Namespace) -> None:
         select = sorted({selector for selectors in loaded for selector in selectors})
         started = time.monotonic()
         with console.status("Building the warehouse (dbt)…"):
-            pipeline.run_dbt(select, args.database_url, quiet=not args.verbose)
+            intel.load("run").run_dbt(select, args.database_url, quiet=not args.verbose)
         console.print(f"[green]✓[/green] Warehouse built and tested ({time.monotonic() - started:.0f}s)")
 
     console.print()
@@ -138,7 +138,7 @@ def _can_classify() -> bool:
         importlib.import_module("anthropic")
     except ImportError:
         console.print("[yellow]![/yellow] Papers will load unclassified: install the extra "
-                      "with `uv tool install 'glitched[papers]'`.")
+                      "with `pip install 'glitched-pipelines[papers]'`.")
         return False
     if not secret("ANTHROPIC_API_KEY"):
         console.print("[yellow]![/yellow] Papers will load unclassified: set ANTHROPIC_API_KEY "
@@ -228,8 +228,11 @@ def check_database(database_url: str) -> list[Check]:
 
 
 def check_dbt_runner() -> Check:
+    if not intel.available():
+        return Check("dbt runner", "warn", "glitched-pipelines isn't installed, so this machine can't build the data",
+                     "Fine if you only read an existing database; otherwise install glitched-pipelines")
     custom, source = config.lookup("dbt_command")
-    program = shlex.split(pipeline.dbt_command())[0]
+    program = shlex.split(intel.load("run").dbt_command())[0]
     if shutil.which(program):
         return Check("dbt runner", "ok", f"`{program}` found" + (f" (dbt_command from {source})" if custom else ""))
     if custom:
@@ -257,7 +260,7 @@ def check_papers() -> Check:
         importlib.import_module("anthropic")
     except ImportError:
         return Check("Paper classification", "info", "not installed (optional)",
-                     "uv tool install 'glitched[papers]'")
+                     "pip install 'glitched-pipelines[papers]'")
     if not secret("ANTHROPIC_API_KEY"):
         return Check("Paper classification", "info", "installed; ANTHROPIC_API_KEY not set (optional)",
                      "Set ANTHROPIC_API_KEY to classify research papers")
@@ -363,7 +366,7 @@ def cmd_snapshot_export(args: argparse.Namespace) -> None:
     if "research" in include:
         console.print("[yellow]![/yellow] Including your curated CVE notes - only share with people who should have them.")
     with console.status("Exporting…"):
-        manifest = snapshot.export(Path(args.path), include, args.database_url)
+        manifest = intel.load("snapshot").export(Path(args.path), include, args.database_url)
     table = Table(title=f"Snapshot {args.path}", border_style="blue")
     table.add_column("Table")
     table.add_column("Rows", justify="right")
@@ -379,7 +382,7 @@ def cmd_snapshot_export(args: argparse.Namespace) -> None:
 
 def cmd_snapshot_import(args: argparse.Namespace) -> None:
     """Import only (no dbt build) - `glitched setup --snapshot` is usually what you want."""
-    manifest = snapshot.import_(Path(args.path), args.database_url)
+    manifest = intel.load("snapshot").import_(Path(args.path), args.database_url)
     console.print(f"[green]✓[/green] Imported {len(manifest['tables'])} tables. "
                   "Run `glitched setup --snapshot` instead to also build the warehouse.")
 
@@ -417,7 +420,7 @@ def cmd_debug_bundle(args: argparse.Namespace) -> None:
         "python": sys.version,
         "platform": platform.platform(),
         "packages": {name: package_version(name) for name in
-                     ["pydantic", "psycopg2-binary", "rich", "questionary", "anthropic", "matplotlib"]},
+                     ["glitched-pipelines", "psycopg2-binary", "rich", "questionary", "anthropic", "matplotlib"]},
     }
     checks = [{"name": c.name, "status": c.status, "detail": c.detail, "fix": c.fix}
               for c in run_checks(args.database_url)]

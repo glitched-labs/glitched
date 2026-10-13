@@ -6,7 +6,7 @@ updates, ...). Threat intel is indexed by CVE platform tags (research_cves) and
 EMB3D property ids (PID-###). This module is the single translation layer
 between the two, used by:
 
-  - pipelines/transform tags CVEs with the same keywords (seeds/platform_keywords.csv)
+  - glitched-pipelines (private) tags CVEs with the same keywords (a copy of platform_keywords.csv)
   - device_profile.py   to turn questionnaire answers, SBOM components and
                         scan results into tags + EMB3D properties
   - queries.py          to decide which tags identify a platform
@@ -24,8 +24,8 @@ from pathlib import Path
 # --------------------------------------------------------------------------
 
 # Keyword (matched as a whole word, case-insensitive) -> normalised tag.
-# Kept in a dbt seed so CVE tagging (stg_research__cves) and the app share one list.
-KEYWORDS_CSV = Path(__file__).resolve().parent / "pipelines" / "transform" / "seeds" / "platform_keywords.csv"
+# The private pipelines tag CVEs from a copy of this file, so CVE tagging and the app share one list.
+KEYWORDS_CSV = Path(__file__).resolve().parent / "platform_keywords.csv"
 with KEYWORDS_CSV.open(newline="") as _f:
     PLATFORM_KEYWORDS: dict[str, str] = {row["keyword"]: row["tag"] for row in csv.DictReader(_f)}
 

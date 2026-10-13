@@ -14,7 +14,7 @@ it's fixed, and credit you in the release notes if you'd like.
 
 ## What's in scope
 
-- The `glitched` CLI, its threat-data pipelines and the local scan UI (`glitched ui`):
+- The `glitched` CLI and the local scan UI (`glitched ui`):
   for example, the UI being reachable from another machine or another website, a scan
   reaching a host it shouldn't, or the guardrails being bypassed.
 - The runner (`glitched-runner`): anything that lets a console - or anyone else - make

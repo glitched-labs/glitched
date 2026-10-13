@@ -1,12 +1,12 @@
 # Install
 
-Needs Python 3.11+, a running PostgreSQL, and [uv](https://docs.astral.sh/uv/)
-(the data pipelines run dbt through it).
+Needs Python 3.11+ and a running PostgreSQL that holds the threat intel. Building that database takes the
+private `glitched-pipelines` package (and [uv](https://docs.astral.sh/uv/), which it uses to run dbt);
+reading an existing one does not.
 
 ```bash
 uv tool install "git+https://github.com/glitched-labs/glitched"   # or: pipx install "git+https://..."
-uv tool install "glitched[papers] @ git+https://github.com/glitched-labs/glitched"   # + paper classification
-glitched setup                               # create the database, load all threat intel (~1 min)
+glitched setup                               # only with glitched-pipelines installed: build the threat-intel database
 glitched doctor                              # check everything; prints a fix for any problem
 ```
 
@@ -32,26 +32,25 @@ glitched config unset research_dir
 |---|---|---|
 | `database_url` | `DATABASE_URL` | PostgreSQL connection (default `postgresql://localhost:5432/glitched`) |
 | `nvd_api_key` | `NVD_API_KEY` | optional; ~10x faster NVD loads |
-| `anthropic_api_key` | `ANTHROPIC_API_KEY` | optional; research paper classification |
-| `dbt_command` | `DBT_COMMAND` | optional; how to run dbt (default: via `uvx`) |
-| `research_dir` | `GLITCHED_RESEARCH_DIR` | optional; folder of curated `CVE-*.md` notes |
+| `anthropic_api_key` | `ANTHROPIC_API_KEY` | optional; used by glitched-pipelines to classify papers |
+| `dbt_command` | `DBT_COMMAND` | optional; how glitched-pipelines runs dbt (default: via `uvx`) |
+| `research_dir` | `GLITCHED_RESEARCH_DIR` | optional; folder of curated `CVE-*.md` notes (glitched-pipelines) |
 
 Scan evidence and charts are written to `~/.local/share/glitched`
 (`$GLITCHED_HOME`).
 
 ## Run with Docker
 
-No Python, uv or PostgreSQL needed - just Docker. From a checkout:
+No Python or PostgreSQL needed - just Docker. From a checkout:
 
 ```bash
-docker compose run --rm glitched setup       # builds the image, starts PostgreSQL, loads threat intel
+docker compose run --rm glitched doctor      # builds the image, starts PostgreSQL (empty until you load threat intel)
 docker compose run --rm glitched doctor
 docker compose run --rm glitched onboard     # glitch.yaml is saved in this folder
 docker compose run --rm glitched scan --profile glitch.yaml --host 192.168.1.50
 ```
 
-- The current folder is mounted at `/work`, so profiles, SBOMs and snapshot
-  files go here (`setup --snapshot glitched-intel-v0.1.0.zip`).
+- The current folder is mounted at `/work`, so profiles and SBOMs go here.
 - Everything else - the database, settings, the acknowledgement, scan
   evidence - lives in Docker volumes and survives restarts. `docker compose
   down -v` deletes it all.

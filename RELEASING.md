@@ -12,36 +12,22 @@ git tag -a v0.2.0 -m "Glitched 0.2.0"
 git push origin main v0.2.0
 ```
 
-Pushing the tag runs CI. When lint, tests, the setup integration test, the Docker checks
+Pushing the tag runs CI. When lint, tests, the Docker checks
 and the secret scan pass, the **Release** job publishes a GitHub Release with the wheel and
 generated notes. Then set the version to the next dev version (`0.2.1.dev0`) on `main`.
 
-## 2. Attach a threat-intel snapshot
-
-From a machine with a fully loaded database (run `glitched setup` first, ideally with an
-`NVD_API_KEY`):
-
-```bash
-glitched snapshot export glitched-intel-v0.2.0.zip
-gh release upload v0.2.0 glitched-intel-v0.2.0.zip
-```
-
-The default snapshot (ATLAS, EMB3D, NVD) is shareable with attribution - see NOTICE.md.
-Don't add `--include research` or `--include papers` to a snapshot you publish.
-
-## 3. What people run
+## 2. What people run
 
 ```bash
 uv tool install "git+https://github.com/glitched-labs/glitched@v0.2.0"
-glitched setup --snapshot glitched-intel-v0.2.0.zip   # or plain `glitched setup`
-glitched doctor
+glitched doctor        # with DATABASE_URL pointing at a database that has the threat intel
 ```
 
 Upgrading: `uv tool install --reinstall "git+https://github.com/glitched-labs/glitched@v0.3.0"`.
 Devices, scans, profiles and config are kept: the app's tables are only ever extended in
-place, and the threat-intel tables are merged, never dropped.
+place. The threat-intel data and its snapshots are built and released from the private glitched-pipelines repo.
 
-## 4. The console
+## 3. The console
 
 The hosted Glitched console builds on this package from a pinned tag. After a release that
 changes something the console uses (device profiles, the pipelines, the runner protocol,
