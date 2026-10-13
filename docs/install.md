@@ -25,7 +25,7 @@ each setting and where its value came from (API keys are never printed):
 glitched config show
 glitched config set nvd_api_key          # prompts with hidden input
 glitched config set database_url postgresql://localhost:5432/glitched
-glitched config unset research_dir
+glitched config unset nvd_api_key
 ```
 
 | Setting | Env variable | Purpose |
@@ -34,7 +34,6 @@ glitched config unset research_dir
 | `nvd_api_key` | `NVD_API_KEY` | optional; ~10x faster NVD loads |
 | `anthropic_api_key` | `ANTHROPIC_API_KEY` | optional; used by glitched-pipelines to classify papers |
 | `dbt_command` | `DBT_COMMAND` | optional; how glitched-pipelines runs dbt (default: via `uvx`) |
-| `research_dir` | `GLITCHED_RESEARCH_DIR` | optional; folder of curated `CVE-*.md` notes (glitched-pipelines) |
 
 Scan evidence and charts are written to `~/.local/share/glitched`
 (`$GLITCHED_HOME`).

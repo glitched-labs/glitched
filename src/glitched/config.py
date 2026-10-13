@@ -40,7 +40,6 @@ SETTINGS: dict[str, Setting] = {
     "anthropic_api_key": Setting("ANTHROPIC_API_KEY", "Anthropic API key (optional; research paper classification)",
                                  secret=True),
     "dbt_command": Setting("DBT_COMMAND", "how to run dbt (default: dbt-core + dbt-postgres via uvx)"),
-    "research_dir": Setting("GLITCHED_RESEARCH_DIR", "folder of curated CVE-*.md notes (optional)"),
     "acknowledged": Setting("GLITCHED_ACKNOWLEDGED",
                             "version of the authorized-use notice you accepted (`glitched acknowledge`)"),
 }

@@ -81,13 +81,13 @@ Export or import a threat-intel snapshot (needs glitched-pipelines).
 Write the raw threat intel (ATLAS, EMB3D, NVD) to a .zip.
 
 ```
-glitched snapshot export [--include {research,papers}] path
+glitched snapshot export [--include {papers}] path
 ```
 
 | Argument | What it does |
 |---|---|
 | `PATH` | the .zip to write |
-| `--include` `INCLUDE` | also include your curated CVE notes and/or research papers (repeatable) - one of `research`, `papers` |
+| `--include` `INCLUDE` | also include research papers (repeatable) - one of `papers` |
 
 ### `glitched snapshot import`
 

@@ -12,20 +12,20 @@ from glitched import queries
 NVD = [
     # Another vendor's Wi-Fi thermostat: shares only "wifi" with the device.
     {"id": "CVE-2022-43704", "score": 5.9, "description": "Sinilink WiFi thermostat ...",
-     "platform_tags": ["wifi", "mqtt"], "kev": None, "curated": False},
+     "platform_tags": ["wifi", "mqtt"], "kev": None},
     # Names the ROS platform.
     {"id": "CVE-2024-39289", "score": 9.8, "description": "Robot Operating System ...",
-     "platform_tags": ["ros"], "kev": None, "curated": False},
+     "platform_tags": ["ros"], "kev": None},
     # ROS 2 navigation2 bug (product nav2), Siemens RUGGEDCOM "ROS" (a switch OS), a Unitree robot CVE.
     {"id": "CVE-2026-26011", "score": 7.5, "description": "navigation2 is a ROS 2 Navigation Framework. ...",
-     "platform_tags": ["ros"], "kev": None, "curated": False},
+     "platform_tags": ["ros"], "kev": None},
     {"id": "CVE-2023-0001", "score": 9.8, "description": "RUGGEDCOM ROS before V5.8 ...",
-     "platform_tags": ["ros"], "kev": None, "curated": False},
+     "platform_tags": ["ros"], "kev": None},
     {"id": "CVE-2025-0002", "score": 8.0, "description": "Unitree Go2 firmware ...",
-     "platform_tags": ["unitree"], "kev": None, "curated": False},
+     "platform_tags": ["unitree"], "kev": None},
     # Mosquitto, fixed in 1.4.12.
     {"id": "CVE-2017-7650", "score": 6.5, "description": "In Mosquitto before 1.4.12 ...",
-     "platform_tags": ["mqtt"], "kev": None, "curated": False},
+     "platform_tags": ["mqtt"], "kev": None},
 ]
 PRODUCTS = {
     "CVE-2024-39289": [{"vendor": "openrobotics", "product": "robot_operating_system", "version": v}

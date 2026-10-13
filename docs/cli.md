@@ -142,7 +142,6 @@ current folder (or a parent folder), then the config file (`glitched config path
 | `nvd_api_key` | `NVD_API_KEY` | NVD API key: optional, makes NVD loads about 10x faster |
 | `anthropic_api_key` | `ANTHROPIC_API_KEY` | optional: classifies research papers (`setup --papers`, glitched-pipelines) |
 | `dbt_command` | `DBT_COMMAND` | how to run dbt (default: dbt-core + dbt-postgres via uvx) |
-| `research_dir` | `GLITCHED_RESEARCH_DIR` | a folder of curated `CVE-*.md` notes (optional) |
 
 ```bash
 glitched config show                 # every setting, where its value came from (secrets hidden)

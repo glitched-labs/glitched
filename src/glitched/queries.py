@@ -111,7 +111,7 @@ _EMB3D_RANK = {
 
 
 def tables_exist(tables: list[str], database_url: str = DATABASE_URL) -> bool:
-    """True if every table exists - optional sources (papers, NVD, curated notes) may not."""
+    """True if every table exists - optional sources (papers, NVD) may not."""
     rows = query("SELECT bool_and(to_regclass(t) IS NOT NULL) AS ok FROM unnest(%s::text[]) AS t",
                  [tables], database_url=database_url)
     return bool(rows[0]["ok"])
@@ -318,36 +318,23 @@ def ros_match(products: list[dict], distro: str | None, description: str = "") -
 def _cve_exposure(tags: set[str], components: list[tuple[str, str | None]],
                   database_url: str, ros_distro: str | None = None) -> list[dict[str, Any]]:
     """
-    Real-world CVEs: the curated research notes plus NVD CVEs found by platform
-    keyword search (the curated note wins when both have the same CVE).
+    Real-world CVEs: NVD CVEs found by platform keyword search.
 
     A CVE applies if it names a platform the device is built on (unitree,
     ros, ...) or lists one of its SBOM components among the affected products.
     A CVE that only shares an interface keyword (mqtt, wifi) is marked
     related: it's about some other product using that interface. Order:
-    curated notes, component matches with the version listed, platform
+    component matches with the version listed, platform
     matches, other component matches, then related; within each, CISA
     known-exploited first, then by CVSS.
     """
-    # Either source may be missing (no curated notes, NVD skipped, snapshot install).
-    have_curated = tables_exist(["research_cves"], database_url)
-    have_nvd = tables_exist(["nvd_cves"], database_url)
-    parts = []
-    if have_curated:
-        parts.append("""
-            SELECT id, cvss_rating AS score, description, platform_tags,
-                   NULL::date AS kev, true AS curated
-            FROM research_cves WHERE is_current""")
-    if have_nvd:
-        parts.append("""
-            SELECT id, cvss_score AS score, description, platform_tags,
-                   cisa_kev_added AS kev, false AS curated
-            FROM nvd_cves WHERE is_current""" + ("""
-              AND id NOT IN (SELECT id FROM research_cves WHERE is_current)""" if have_curated else ""))
-    if not parts:
+    # NVD may be missing (skipped, or a snapshot install).
+    if not tables_exist(["nvd_cves"], database_url):
         return []
-    cves = query("\nUNION ALL".join(parts), database_url=database_url)
-    products = _affected_products(database_url) if have_nvd else {}
+    cves = query("""
+        SELECT id, cvss_score AS score, description, platform_tags, cisa_kev_added AS kev
+        FROM nvd_cves WHERE is_current""", database_url=database_url)
+    products = _affected_products(database_url)
     rows = []
     for cve in cves:
         cve_tags = set(cve["platform_tags"] or [])
@@ -356,7 +343,7 @@ def _cve_exposure(tags: set[str], components: list[tuple[str, str | None]],
         related = False
         if component and component[1] == "not_affected":
             continue  # about this component, but a version the device doesn't run
-        ros_only = platforms == ["ros"] and not cve["curated"]  # curated notes are already about robots
+        ros_only = platforms == ["ros"]
         if component and component[1] == "affected":
             reason, band = f"your {component[0]} is listed as affected", 0.1
         elif platforms and not ros_only:
@@ -389,9 +376,9 @@ def _cve_exposure(tags: set[str], components: list[tuple[str, str | None]],
             "kev": bool(cve["kev"]),
             "reason": reason,
             "related": related,
-            # curated 0-0.1, then the bands above (all above EMB3D's 1+);
+            # the bands above (all above EMB3D's 1+);
             # within a band KEV first, then higher score
-            "rank": (0 if cve["curated"] and not related else band)
+            "rank": band
                     + (0 if cve["kev"] else 0.05)
                     + (10 - float(score if score is not None else 0)) / 200,
         })

@@ -2,7 +2,7 @@
 Shared vocabulary for describing a robot / IoT device.
 
 Customers describe their device in plain terms (ROS, Unitree, Bluetooth, OTA
-updates, ...). Threat intel is indexed by CVE platform tags (research_cves) and
+updates, ...). Threat intel is indexed by CVE platform tags (nvd_cves) and
 EMB3D property ids (PID-###). This module is the single translation layer
 between the two, used by:
 

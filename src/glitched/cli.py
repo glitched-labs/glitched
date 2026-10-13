@@ -106,7 +106,7 @@ STATUS_STYLE = {
 
 # Threat-intel loaders re-run by `exposure --refresh` (all idempotent).
 # Sources `exposure --refresh` reloads (fast ones; NVD and papers run via `setup`).
-REFRESH_SOURCES = ("mitre", "emb3d", "research")
+REFRESH_SOURCES = ("mitre", "emb3d")
 
 VALID_STATUSES = {
     "planned", "awaiting_approval", "confirmed", "not_present",
@@ -1205,8 +1205,8 @@ def build_parser() -> argparse.ArgumentParser:
     snapshot_sub = p.add_subparsers(dest="snapshot_command", required=True)
     pp = snapshot_sub.add_parser("export", help="write the raw threat intel (ATLAS, EMB3D, NVD) to a .zip")
     pp.add_argument("path", help="the .zip to write")
-    pp.add_argument("--include", action="append", choices=["research", "papers"],
-                    help="also include your curated CVE notes and/or research papers (repeatable)")
+    pp.add_argument("--include", action="append", choices=["papers"],
+                    help="also include research papers (repeatable)")
     pp.set_defaults(func=cmd_snapshot_export)
     pp = snapshot_sub.add_parser("import", help="load a snapshot's raw tables (use `setup --snapshot` to also build)")
     pp.add_argument("path", help="the .zip to load (from `glitched snapshot export`)")

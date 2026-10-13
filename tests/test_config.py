@@ -45,7 +45,7 @@ class ConfigTest(unittest.TestCase):
     def test_existing_loose_file_is_tightened(self):
         self.path.write_text("")
         self.path.chmod(0o644)
-        config.set_value("research_dir", "/notes")
+        config.set_value("nvd_api_key", "abc")
         self.assertEqual(stat.S_IMODE(self.path.stat().st_mode), 0o600)
 
     def test_display_never_shows_secrets_or_passwords(self):

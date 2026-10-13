@@ -17,7 +17,7 @@ Add detail to the profile at any time (merging never removes anything):
 ```bash
 glitched profile import-sbom sbom.json      # CycloneDX or SPDX JSON
 glitched profile detect --host <robot-ip>   # connect-only port scan; you confirm each suggestion
-glitched exposure --refresh                 # re-pull MITRE + research CVEs first
+glitched exposure --refresh                 # re-pull MITRE data first
 ```
 
 `glitch.yaml` is plain YAML, so you can write it by hand or check it into your repo:

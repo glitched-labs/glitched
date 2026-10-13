@@ -31,7 +31,7 @@ from glitched import config
 from glitched.config import secret
 from glitched.db import safe_url, ensure_database, query
 from glitched import intel, safety, ui
-from glitched.paths import cache_home, data_home, research_notes_dir
+from glitched.paths import cache_home, data_home
 
 console = Console()
 
@@ -39,7 +39,6 @@ console = Console()
 SOURCES = [
     ("MITRE ATLAS", "mitre", "attacks on AI systems"),
     ("MITRE EMB3D", "emb3d", "embedded-device threats"),
-    ("Curated CVE notes", "research", "hand-written robotics CVEs"),
     ("NVD", "nvd", "CVEs for robot platforms"),
 ]
 
@@ -48,7 +47,6 @@ SCHEMA_DBT_SELECT = {
     "raw_atlas": ["source:raw_atlas+"],
     "raw_emb3d": ["source:raw_emb3d+"],
     "raw_nvd": ["source:raw_nvd+", "platform_keywords+"],
-    "raw_research": ["source:raw_research+", "platform_keywords+"],
     "raw_papers": ["source:raw_papers+"],
     "raw_paper_classifications": ["source:raw_paper_classifications+"],
 }
@@ -57,7 +55,6 @@ SCHEMA_DBT_SELECT = {
 WAREHOUSE = {
     "raw_atlas": ["atlas_techniques"],
     "raw_emb3d": ["emb3d_threats"],
-    "raw_research": ["research_cves"],
     "raw_nvd": ["nvd_cves"],
     "raw_papers": ["research_papers"],
 }
@@ -183,7 +180,6 @@ def run_checks(database_url: str) -> list[Check]:
         check_key("NVD_API_KEY", "NVD searches run about 10x faster with a free key",
                   "Request one at https://nvd.nist.gov/developers/request-an-api-key"),
         check_papers(),
-        check_research_notes(),
         check_writable("Data folder", data_home()),
         check_writable("Cache folder", cache_home()),
     ]
@@ -212,10 +208,9 @@ def check_database(database_url: str) -> list[Check]:
     for schema, tables in WAREHOUSE.items():
         label = f"Data: {', '.join(tables)}"
         if not _exists(f"{schema}._loads", database_url) or not all(_exists(t, database_url) for t in tables):
-            optional = schema in ("raw_papers", "raw_research")
+            optional = schema == "raw_papers"
             checks.append(Check(label, "info" if optional else "warn", "not loaded",
-                                {"raw_papers": "glitched setup --papers",
-                                 "raw_research": "Optional: set research_dir to a folder of CVE notes"}.get(schema, "glitched setup")))
+                                {"raw_papers": "glitched setup --papers"}.get(schema, "glitched setup")))
             continue
         loaded_at = query(f"SELECT max(_loaded_at) AS t FROM {schema}._loads", database_url=database_url)[0]["t"]
         age = (datetime.now(timezone.utc) - loaded_at).days
@@ -265,14 +260,6 @@ def check_papers() -> Check:
         return Check("Paper classification", "info", "installed; ANTHROPIC_API_KEY not set (optional)",
                      "Set ANTHROPIC_API_KEY to classify research papers")
     return Check("Paper classification", "ok", "installed, ANTHROPIC_API_KEY set")
-
-
-def check_research_notes() -> Check:
-    folder = research_notes_dir()
-    if not folder.is_dir():
-        return Check("Curated CVE notes", "info", f"none at {folder} (optional)",
-                     "Point GLITCHED_RESEARCH_DIR at a folder of CVE-*.md notes")
-    return Check("Curated CVE notes", "ok", f"{len(list(folder.glob('CVE-*.md')))} notes in {folder}")
 
 
 def check_writable(name: str, folder) -> Check:
@@ -363,8 +350,6 @@ def cmd_snapshot_export(args: argparse.Namespace) -> None:
     if "papers" in include:
         console.print("[yellow]![/yellow] Including research papers: abstracts come from Hugging Face, arXiv "
                       "and NVIDIA, each under its own terms - check them before sharing this file.")
-    if "research" in include:
-        console.print("[yellow]![/yellow] Including your curated CVE notes - only share with people who should have them.")
     with console.status("Exporting…"):
         manifest = intel.load("snapshot").export(Path(args.path), include, args.database_url)
     table = Table(title=f"Snapshot {args.path}", border_style="blue")
