@@ -47,7 +47,7 @@ class Page:
 
 def repo_url(docs: Path = DOCS) -> str:
     """Where "View this page's source" and links to other repository files go (nav.toml's `repo`)."""
-    return tomllib.loads((docs / "nav.toml").read_text()).get("repo", REPO).rstrip("/")
+    return tomllib.loads((docs / "nav.toml").read_text()).get("repo", REPO).rstrip("/")  # "" - no repository
 
 
 def load_nav(docs: Path = DOCS) -> list[Page]:
@@ -56,7 +56,7 @@ def load_nav(docs: Path = DOCS) -> list[Page]:
     for section in nav["section"]:
         for entry in section["pages"]:
             file = entry["file"]
-            slug = "" if file == "index.md" else file.removesuffix(".md")
+            slug = "" if file == "index.md" else "/".join(re.sub(r"\s+", "-", part.strip()) for part in file.removesuffix(".md").split("/"))
             pages.append(Page(file, entry.get("title", ""), section["title"], slug))
     return pages
 
@@ -83,8 +83,10 @@ def _rewrite_links(body: str, page: Page, by_file: dict[str, Page], base: str, r
         doc = target.removeprefix("docs/")
         if doc in by_file:
             url = by_file[doc].url(base)
-        else:
+        elif repo:
             url = f"{repo}/{target}"
+        else:
+            return match[0]  # no repository to link to: leave it as written
         return f'href="{html.escape(url + (f"#{frag}" if frag else ""), quote=True)}"'
 
     return re.sub(r'href="([^"]+)"', fix, body)
@@ -142,16 +144,18 @@ def _top_links(links: list[dict], base: str) -> str:
 
 
 def _page_html(page: Page, pages: list[Page], base: str, repo: str = REPO, top: list[dict] | None = None,
-               footer: list[dict] | None = None, footer_note: str = "") -> str:
+               footer: list[dict] | None = None, footer_note: str = "", name: str = "docs") -> str:
     i = pages.index(page)
     prev_page, next_page = (pages[i - 1] if i else None), (pages[i + 1] if i + 1 < len(pages) else None)
     pager = "".join([
         f'<a class="pager-prev" href="{prev_page.url(base)}"><span>Previous</span>{html.escape(prev_page.title)}</a>' if prev_page else "<span></span>",
         f'<a class="pager-next" href="{next_page.url(base)}"><span>Next</span>{html.escape(next_page.title)}</a>' if next_page else "",
     ])
-    title = "Glitched docs" if not page.slug else f"{page.heading} · Glitched docs"
+    site = f"Glitched {name}"  # nav.toml's `name` (default "docs")
+    title = site if not page.slug else f"{page.heading} · {site}"
     top = _top_links(top or [], base)
     footer = _top_links(footer or [], base)  # the same kind of links, on the right of the footer
+    edit = f'<a href="{repo}/docs/{page.file}">Edit this page</a>' if repo else ""
     return f"""<!doctype html>
 <html lang="en">
 <head>
@@ -165,7 +169,7 @@ def _page_html(page: Page, pages: list[Page], base: str, repo: str = REPO, top: 
 <body data-base="{base}">
 <header class="topbar">
   <button type="button" class="nav-toggle" aria-controls="sidebar" aria-expanded="false">Menu</button>
-  <a class="brand" href="{base}">glitched <span>docs</span></a>
+  <a class="brand" href="{base}">glitched <span>{html.escape(name)}</span></a>
   <nav class="top-links" aria-label="Glitched">{top}</nav>
   <button type="button" class="search-button" aria-label="Search the docs (press /)">
     <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><circle cx="7" cy="7" r="5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="m11 11 3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
@@ -179,7 +183,7 @@ def _page_html(page: Page, pages: list[Page], base: str, repo: str = REPO, top: 
     <nav class="pager" aria-label="Previous and next">{pager}</nav>
     <footer class="site-footer">
       <span class="footer-note">{html.escape(footer_note)}</span>
-      <nav class="footer-links" aria-label="Links">{footer}<a href="{repo}/docs/{page.file}">Edit this page</a></nav>
+      <nav class="footer-links" aria-label="Links">{footer}{edit}</nav>
     </footer>
   </main>
   <aside class="toc-column">{_toc_html(page)}</aside>
@@ -231,7 +235,7 @@ def build(out: Path, base: str = "/docs/", docs: Path = DOCS) -> list[Page]:
         target = out / page.slug / "index.html" if page.slug else out / "index.html"
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_text(_page_html(page, pages, base, repo_url(docs), nav.get("top", []), nav.get("footer", []),
-                                     nav.get("footer_note", "")))
+                                     nav.get("footer_note", ""), nav.get("name", "docs")))
     for name in ("docs.css", "docs.js"):
         shutil.copy(ASSETS / name, out / "_assets" / name)
     with (out / "_assets" / "docs.css").open("a") as css:
@@ -245,7 +249,8 @@ def build(out: Path, base: str = "/docs/", docs: Path = DOCS) -> list[Page]:
                f'Try the <a href="{base}">docs home</a>, or press <kbd>/</kbd> to search.</p></article>' + home[end:])
     missing = re.sub(r'<nav class="pager".*?</nav>', "", missing, flags=re.S)
     missing = re.sub(r'<nav class="toc".*?</nav>', "", missing, flags=re.S)
-    missing = missing.replace(' aria-current="page"', "").replace("<title>Glitched docs</title>", "<title>Page not found · Glitched docs</title>")
+    site = f"Glitched {nav.get('name', 'docs')}"
+    missing = missing.replace(' aria-current="page"', "").replace(f"<title>{site}</title>", f"<title>Page not found · {site}</title>")
     (out / "404.html").write_text(missing)
     return pages
 
